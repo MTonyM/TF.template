@@ -70,6 +70,6 @@ for epoch in range(startEpoch, opt.nEpochs + 1):
         bestLoss = testLoss
         print(' * Best model: \033[1;36m%1.4f\033[0m * ' % testLoss)
 
-    checkpoints.save(epoch, trainer.model, criterion, metric, trainer.optimizer, bestModel, testLoss ,opt)
+    # checkpoints.save(epoch, trainer.model, criterion, metric, trainer.optimizer, bestModel, testLoss ,opt)
 
 print(' * Finished Err: \033[1;36m%1.4f\033[0m * ' % bestLoss)

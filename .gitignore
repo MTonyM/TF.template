@@ -109,7 +109,7 @@ MANIFEST-*
 *.jpg
 *.mat
 *.npy
-
+*.py[cod]
 # Pretrain Models
 *.pth.tar
 
