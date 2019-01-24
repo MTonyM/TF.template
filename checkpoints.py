@@ -4,7 +4,7 @@ import torch.nn as nn
 
 
 def latest(opt):
-    latestPath = os.path.join(opt.resume, 'latest.pth.tar')
+    latestPath = os.path.join(opt.resume, 'latest.ckpt')
     if not os.path.exists(latestPath):
         return None
     print('=> Loading the latest checkpoint ' + latestPath)
@@ -12,7 +12,7 @@ def latest(opt):
 
 
 def best(opt):
-    bestPath = os.path.join(opt.resume, 'best.pth.tar')
+    bestPath = os.path.join(opt.resume, 'best.ckpt')
     if not os.path.exists(bestPath):
         return None
     print('=> Loading the best checkpoint ' + bestPath)
@@ -28,9 +28,9 @@ def load(opt):
     elif epoch == -2:
         return best(opt)
     else:
-        modelFile = 'model_' + str(epoch) + '.pth.tar'
-        criterionFile = 'criterion_' + str(epoch) + '.pth.tar'
-        optimFile = 'optimState_' + str(epoch) + '.pth.tar'
+        modelFile = 'model_' + str(epoch) + '.ckpt'
+        criterionFile = 'criterion_' + str(epoch) + '.ckpt'
+        optimFile = 'optimState_' + str(epoch) + '.ckpt'
         loaded = {'epoch': epoch, 'modelFile': modelFile, 'criterionFile': criterionFile, 'optimFile': optimFile}
         return loaded
 
@@ -40,18 +40,18 @@ def save(epoch, model, criterion, metrics, optimizer, bestModel, loss, opt):
     # TODO
     # write model.txt
 
-    modelFile = 'model_' + str(epoch) + '.pth.tar'
-    criterionFile = 'criterion_' + str(epoch) + '.pth.tar'
-    optimFile = 'optimState_' + str(epoch) + '.pth.tar'
+    modelFile = 'model_' + str(epoch) + '.ckpt'
+    criterionFile = 'criterion_' + str(epoch) + '.ckpt'
+    optimFile = 'optimState_' + str(epoch) + '.ckpt'
 
     if bestModel or (epoch % opt.saveEpoch == 0):
         torch.save(model.state_dict(), os.path.join(opt.resume, modelFile))
         torch.save([criterion, metrics], os.path.join(opt.resume, criterionFile))
         torch.save(optimizer.state_dict(), os.path.join(opt.resume, optimFile))
         info = {'epoch':epoch, 'modelFile':modelFile, 'criterionFile':criterionFile, 'optimFile':optimFile, 'loss':loss}
-        torch.save(info, os.path.join(opt.resume, 'latest.pth.tar'))
+        torch.save(info, os.path.join(opt.resume, 'latest.ckpt'))
 
     if bestModel:
         info = {'epoch':epoch, 'modelFile':modelFile, 'criterionFile':criterionFile, 'optimFile':optimFile, 'loss':loss}
-        torch.save(info, os.path.join(opt.resume, 'best.pth.tar'))
+        torch.save(info, os.path.join(opt.resume, 'best.ckpt'))
         torch.save(model.state_dict(), os.path.join(opt.resume, 'model_best.pth.tar'))

@@ -1,17 +1,18 @@
 import os
+import io
 import pickle
 import tensorflow as tf
 from tqdm import tqdm
 from PIL import Image
-
+from util.dataset import *
 
 def exec(opt, cacheFilePath):
     assert os.path.exists(opt.data), 'Data directory not found: ' + opt.data
     print(">>>=====> Generating list of dat ....")
 
-    path_test, n_test = loadSaveTFRecords(opt.data, 'test')
-    path_val, n_val = loadSaveTFRecords(opt.data, 'val')
-    path_train, n_train = loadSaveTFRecords(opt.data, 'train')
+    path_test, n_test = createTFRecords(opt.data, 'test', opt.resize)
+    path_val, n_val = createTFRecords(opt.data, 'val', opt.resize)
+    path_train, n_train = createTFRecords(opt.data, 'train')
     info = {
         'basedir': opt.data,
         'test': path_test,
@@ -25,35 +26,44 @@ def exec(opt, cacheFilePath):
     return info
 
 
-def loadSaveTFRecords(base, split):
+def createTFExample(patha, pathb, resize=None):
+    img_in, inh, inw = processImg(patha, resize)
+    img_tar, tarh, tarw = processImg(pathb, resize)
+    tf_example = tf.train.Example(
+        features=tf.train.Features(
+            feature={
+                'input/image': bytes_feature(img_in),
+                'input/height': int64_feature(inh),
+                'input/width': int64_feature(inw),
+                'target/image': bytes_feature(img_tar),
+                'target/height': int64_feature(tarh),
+                'target/width': int64_feature(tarw),
+                'format': bytes_feature(b'jpg')
+            }
+        )
+    )
+    return tf_example
+
+
+def createTFRecords(base, split, resize=None):
     path_input = os.path.join(base, split + "_blur")
     path_target = os.path.join(base, split + "_clear")
     list_input, list_target = listdir_(path_input), listdir_(path_target)
     assert list_input[10].split("/")[-1] == list_target[10].split("/")[-1], \
         "WARNING, sanity check in data loader failed."
 
-    def shape_raw(img_target_path):
-        img = Image.open(img_target_path)
-        shape_ = img.size
-        img_raw = img.tobytes()
-        return shape_, img_raw
     tf_path = os.path.join(base, split + ".tfrecords")
-    if os.path.exists(tf_path):     # TODO: sum check
-        return tf_path, len(list_input)
-
-    print("=> Saving tf records to " + tf_path)
+    print("=> creating tf records in " + tf_path)
     writer = tf.python_io.TFRecordWriter(tf_path)
+    total = 0
     for i in tqdm(range(len(list_input))):
-        shape_tar, tar_raw = shape_raw(list_target[i])
-        shape_in, in_raw = shape_raw(list_input[i])
-        example = tf.train.Example(features=tf.train.Features(feature={
-            'shape': tf.train.Feature(int64_list=tf.train.Int64List(value=[*shape_in, *shape_tar])),
-            'input_raw': tf.train.Feature(bytes_list=tf.train.BytesList(value=[in_raw])),
-            'target_raw': tf.train.Feature(bytes_list=tf.train.BytesList(value=[tar_raw]))
-        }))
-        writer.write(example.SerializeToString())
+        tf_example = createTFExample(list_input[i], list_target[i], resize=None)
+        total += 1
+        writer.write(tf_example.SerializeToString())
     writer.close()
-    return tf_path, len(list_input)
+    return tf_path, total
+
+
 
 
 def listdir_(path):

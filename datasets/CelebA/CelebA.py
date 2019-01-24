@@ -1,4 +1,5 @@
 import tensorflow as tf
+slim = tf.contrib.slim
 import numpy as np
 
 
@@ -12,46 +13,40 @@ class CelebA:
         self.total = imageInfo['n_' + split]
 
     def get_dataset(self):
-        dataset = tf.data.TFRecordDataset(self.recordPath)
-        return dataset.map(self.parse_example), self.total
+        return self.readTFRecords(), self.total
 
-        # example = tf.train.Example(features=tf.train.Features(feature={
-        #     'shape': tf.train.Feature(int64_list=tf.train.Int64List(value=[*shape_in, *shape_tar])),
-        #     'input_raw': tf.train.Feature(bytes_list=tf.train.BytesList(value=[in_raw])),
-        #     'target_raw': tf.train.Feature(bytes_list=tf.train.BytesList(value=[tar_raw]))
-        # }))
+    def readTFRecords(self):
+        keysToFeatures = {
+            'input/image': tf.FixedLenFeature([], default_value='', dtype=tf.string,),
+            'input/height': tf.FixedLenFeature([], tf.int64, default_value=0),
+            'input/width': tf.FixedLenFeature([], tf.int64, default_value=0),
+            'target/image': tf.FixedLenFeature([], default_value='', dtype=tf.string,),
+            'target/height': tf.FixedLenFeature([], tf.int64, default_value=0),
+            'target/width': tf.FixedLenFeature([], tf.int64, default_value=0),
+            'format': tf.FixedLenFeature([], default_value='jpeg', dtype=tf.string,),
+        }
+        itemsToHandlers = {
+            'input/image': slim.tfexample_decoder.Image(image_key='input/image', format_key='format', channels=3),
+            'target/image': slim.tfexample_decoder.Image(image_key='input/image', format_key='format', channels=3),
+            'input/height': slim.tfexample_decoder.Tensor('input/height', shape=[]),
+            'input/width': slim.tfexample_decoder.Tensor('input/width', shape=[]),
+            'target/height': slim.tfexample_decoder.Tensor('target/height', shape=[]),
+            'target/width': slim.tfexample_decoder.Tensor('target/width', shape=[])
+        }
+        decoder = slim.tfexample_decoder.TFExampleDecoder(keysToFeatures, itemsToHandlers)
+        itemsToDescriptions = {
+            'input/image': 'input image',
+            'target/image': 'target image'
+        }
+        dataset = slim.dataset.Dataset(
+            data_sources=self.recordPath,
+            reader=tf.TFRecordReader,
+            decoder=decoder,
+            num_samples=self.total,
+            items_to_descriptions=itemsToDescriptions,
+        )
+        return dataset
 
-    def parse_example(self, serial_exmp):
-        features = tf.parse_single_example(
-            serial_exmp,
-            features={
-                'shape': tf.FixedLenFeature([4], tf.int64),
-                'input_raw': tf.FixedLenFeature([], tf.string),
-                'target_raw': tf.FixedLenFeature([], tf.string)
-            })
-
-        # contains preprocess !
-        # TODO: reshape the raw image.
-        # with tf.Session() as sess:
-        #     print(features['shape'])
-        shape = tf.cast(features['shape'], tf.int32)
-        #     print(shape.eval(session=sess))
-        #     tf.initialize_all_variables().run()
-        #     nump = sess.run(shape)
-
-        # print(nump.shape)
-        shape_in, shape_tar = shape[:2], shape[2:]
-        img_in = tf.decode_raw(features['input_raw'], tf.float32)
-        img_in = tf.reshape(img_in, shape_in)
-        img_in = tf.cast(img_in, tf.float32) * (1. / 255) - 0.5
-
-        img_tar = tf.decode_raw(features['target_raw'], tf.float32)
-        img_tar = tf.reshape(img_tar, shape_tar)
-        img_tar = tf.cast(img_tar, tf.float32) * (1. / 255) - 0.5
-        # print("=> pass test")
-        # ( transforms.
-        #   )
-        return img_in, img_tar, shape_in, shape_tar
 
 
 def getInstance(info, opt, split):

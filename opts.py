@@ -2,7 +2,6 @@ import argparse
 import os
 import random
 from util.utils import is_gpu_available
-import torch
 import tensorflow as tf
 
 def parse():
@@ -12,6 +11,7 @@ def parse():
     parser.add_argument('--manualSeed',       default=0,              type=int,        help='manual seed')
     parser.add_argument('--GPU',              default=True,           type=str2bool,   help='Use GPU' )
     parser.add_argument('--GPUs',             default='1',            type=str,        help='ID of GPUs to use, seperate by ,')
+    parser.add_argument('--eager',            default=False,          type=str2bool,   help='enable eager execution.?')
     # Path options
     parser.add_argument('--data',             default='../data',      type=str,        help='Path to dataset' )
     parser.add_argument('--gen',              default='../gen',       type=str,        help='Path to generated files' )
@@ -29,6 +29,7 @@ def parse():
     parser.add_argument('--batchSize',        default=64,             type=int,        help='mini-batch size')
     parser.add_argument('--saveEpoch',        default=5,              type=int,        help='saving at least # epochs')
     parser.add_argument('--testOnly',         default=False,          type=str2bool,   help='Run the test to see the performance')
+    parser.add_argument('--resize',           default=None,           type=float,      help='input image resize')
     parser.add_argument('--barwidth',         default=40,             type=int,        help='Progress bar width')
     parser.add_argument('--visTrain',         default=2,              type=int,        help='Visualizing training examples')
     parser.add_argument('--visTest',          default=2,              type=int,        help='Visualizing testing examples')

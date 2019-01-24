@@ -2,6 +2,7 @@ import sys
 import opts
 import math
 import importlib
+import tensorflow as tf
 print("=> initializing. parsing arguments.")
 opt = opts.parse()
 
@@ -21,9 +22,19 @@ except ImportError:
 # Data loading
 print('=> Setting up data loader')
 trainLoader, valLoader = DataLoader.create(opt)
-
-
-
+# trainLoader contains loader and total number...
+# debug 0000000000
+# tar = valLoader[0].get(['target/image'])
+# with tf.Session() as sess:
+#     init_op = tf.global_variables_initializer()
+#     sess.run(init_op)
+#     coord = tf.train.Coordinator()
+#     threads = tf.train.start_queue_runners(coord=coord)
+#     out = sess.run(tar)
+#     print(type(out[0]))
+#     coord.request_stop()
+#     coord.join()
+# debug 0000000000
 # Load previous checkpoint, if it exists
 print('=> Checking checkpoints')
 checkpoint = checkpoints.load(opt)
