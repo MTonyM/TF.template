@@ -1,6 +1,4 @@
 import tensorflow as tf
-import tensorflow.contrib.slim as slim
-import numpy as np
 
 
 class CelebA:
@@ -9,14 +7,9 @@ class CelebA:
         self.opt = opt
         self.split = split
         self.dir = imageInfo['basedir']
-        self.transform = None
+        self.transform = lambda x: x
         self.total = imageInfo['n_' + split]
-
-    def get_dataset(self):
-        return self.readTFRecords(), self.total
-
-    def readTFRecords(self):
-        keysToFeatures = {
+        self.keysToFeatures = {
             'input/image': tf.FixedLenFeature([], default_value='', dtype=tf.string,),
             'input/height': tf.FixedLenFeature([], tf.int64, default_value=0),
             'input/width': tf.FixedLenFeature([], tf.int64, default_value=0),
@@ -25,28 +18,32 @@ class CelebA:
             'target/width': tf.FixedLenFeature([], tf.int64, default_value=0),
             'format': tf.FixedLenFeature([], default_value='jpeg', dtype=tf.string,),
         }
-        itemsToHandlers = {
-            'input/image': slim.tfexample_decoder.Image(image_key='input/image', format_key='format', channels=3),
-            'target/image': slim.tfexample_decoder.Image(image_key='input/image', format_key='format', channels=3),
-            'input/height': slim.tfexample_decoder.Tensor('input/height', shape=[]),
-            'input/width': slim.tfexample_decoder.Tensor('input/width', shape=[]),
-            'target/height': slim.tfexample_decoder.Tensor('target/height', shape=[]),
-            'target/width': slim.tfexample_decoder.Tensor('target/width', shape=[])
-        }
-        decoder = slim.tfexample_decoder.TFExampleDecoder(keysToFeatures, itemsToHandlers)
-        itemsToDescriptions = {
-            'input/image': 'input image',
-            'target/image': 'target image'
-        }
-        dataset = slim.dataset.Dataset(
-            data_sources=self.recordPath,
-            reader=tf.TFRecordReader,
-            decoder=decoder,
-            num_samples=self.total,
-            items_to_descriptions=itemsToDescriptions,
-        )
-        return dataset
 
+    def parse_example(self, serial_exmp):
+        features = tf.parse_single_example(
+            serial_exmp,
+            features=self.keysToFeatures)
+        # contains preprocess !
+        # TODO: reshape the raw image.
+        #     print(features['shape'])
+        h = tf.cast(features['input/height'], tf.int32)
+        w = tf.cast(features['input/width'], tf.int32)
+        img_in = tf.image.decode_jpeg(features['input/image'], channels=3)
+        img_in = tf.image.resize_images(img_in, [h, w])
+        img_in = tf.cast(img_in, tf.float32) * (1. / 255) - 0.5
+
+        img_tar = tf.image.decode_jpeg(features['target/image'], channels=3)
+        img_tar = tf.image.resize_images(img_tar, [h, w])
+        img_tar = tf.cast(img_tar, tf.float32) * (1. / 255) - 0.5
+
+
+        # post process.
+        return img_in, img_tar
+
+    def get_dataset(self):
+        dataset = tf.data.TFRecordDataset(self.recordPath)
+        dataset = dataset.map(self.transform, num_parallel_calls=4)
+        return dataset.map(self.parse_example, num_parallel_calls=4), self.total
 
 
 def getInstance(info, opt, split):

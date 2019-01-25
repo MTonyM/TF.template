@@ -125,6 +125,7 @@ class Trainer:
     def LRDecayStep(self):
         self.scheduler.step()
 
+
 def updateLog(epoch, i, length ,time, datatime, err, Acc):
     log = 'Epoch: [%d][%d/%d] Time %1.3f Data %1.3f Err %1.4f   ' % (
             epoch, i, length, time, datatime, err)
@@ -132,6 +133,7 @@ def updateLog(epoch, i, length ,time, datatime, err, Acc):
         log += metric + " %1.4f  " % Acc[metric]()
     log += '\n'
     return log
+
 
 def createTrainer(model, criterion, metric, opt, optimState):
     return Trainer(model, criterion, metric, opt, optimState)

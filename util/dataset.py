@@ -9,6 +9,7 @@ def int64_feature(value):
 def bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
+
 def processImg(path, resize=None):
     with tf.gfile.GFile(path, 'rb') as fid:
         encode_jpg = fid.read()

@@ -64,8 +64,6 @@ def createTFRecords(base, split, resize=None):
     return tf_path, total
 
 
-
-
 def listdir_(path):
     filenames = os.listdir(path)  # label
     filenames = [os.path.join(path, f) for f in filenames if f.endswith('.jpg')]  # label
