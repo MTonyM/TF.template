@@ -16,11 +16,11 @@ class Net:
         #                          padding='same', activation=tf.nn.relu)(conv1)
         # conv3 = tf.layers.Conv2D(filters=3, kernel_size=[9, 9], strides=1,
         #                          padding='same')(conv2)
-        out = X
-        out = tf.layers.conv2d(out,64,9,(1,1),'same')
-        out = tf.layers.conv2d(out,32,1,(1,1),'same')
-        out = tf.layers.conv2d(out,3,9,(1,1),'same')
-        return out
+        out = tf.layers.conv2d(X, 64, 9, (1, 1), 'same')
+        out = tf.layers.conv2d(out, 32, 1, (1, 1), 'same')
+        out = tf.layers.conv2d(out, 3, 9, (1, 1), 'same')
+        loss = tf.losses.mean_squared_error(out, Y) * 255 * 255 / 144 / 144
+        return loss
 
 def createModel(opt):
     model = Net(opt)
