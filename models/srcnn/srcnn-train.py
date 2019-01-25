@@ -17,7 +17,7 @@ class Trainer:
         num_iters = int(dataLoader[1] // self.batchSize)
 
         X_, Y_ = tf.placeholder(tf.float32, shape=[None, 144,144,3]), tf.placeholder(tf.float32,shape=[None, 144,144,3])
-        loss = self.model.model_fn(X_, Y_)
+        loss, out = self.model.model_fn(X_, Y_)
         train_op = tf.train.AdamOptimizer().minimize(loss)
 
         with tf.Session().as_default() as sess:
@@ -27,10 +27,9 @@ class Trainer:
             for i in tqdm(range(num_iters)):
                 X, Y = sess.run(dataLoader[0].get_next())
                 # =>>>get batch tensor
-
-                out_1 = sess.run([train_op, loss], feed_dict={X_: X,
-                                                              Y_: Y})
-                print(num_iters, out_1, i)
+                _, loss_eval, out_eval = sess.run([train_op, loss, out], feed_dict={X_: X, Y_: Y})
+                # acc = self.criterion(out)
+                print(num_iters, loss_eval, out_eval.shape, i)
             coord.request_stop()
             coord.join()
             # loss = tf.losses.mean_squared_error(Y, Y_)

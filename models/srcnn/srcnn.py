@@ -9,6 +9,7 @@ import tensorflow as tf
 class Net:
     def __init__(self, opt):
         self.opt = opt
+
     def model_fn(self, X, Y):
         # conv1 = tf.layers.Conv2D(filters=self.opt.numChannels, kernel_size=[9, 9], strides=1,
         #                          padding='same', activation=tf.nn.relu)(X)
@@ -20,7 +21,8 @@ class Net:
         out = tf.layers.conv2d(out, 32, 1, (1, 1), 'same')
         out = tf.layers.conv2d(out, 3, 9, (1, 1), 'same')
         loss = tf.losses.mean_squared_error(out, Y) * 255 * 255 / 144 / 144
-        return loss
+        return loss, out
+
 
 def createModel(opt):
     model = Net(opt)

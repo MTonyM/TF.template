@@ -1,6 +1,7 @@
 import torch.nn as nn
 from skimage.measure import compare_psnr, compare_ssim
-from collections import defaultdict
+
+
 def initCriterion(criterion, model):
     pass
 
