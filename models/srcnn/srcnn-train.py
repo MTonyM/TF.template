@@ -17,7 +17,7 @@ class Trainer:
         num_iters = int(dataLoader[1] // self.batchSize)
 
         X_, Y_ = tf.placeholder(tf.float32, shape=[None, 144,144,3]), tf.placeholder(tf.float32,shape=[None, 144,144,3])
-        loss, out = self.model.model_fn(X_, Y_)
+        loss, out = self.model.model_fn(X_, Y_) # loss -> self.criterion.
         train_op = tf.train.AdamOptimizer().minimize(loss)
 
         with tf.Session().as_default() as sess:
@@ -32,17 +32,6 @@ class Trainer:
                 print(num_iters, loss_eval, out_eval.shape, i)
             coord.request_stop()
             coord.join()
-            # loss = tf.losses.mean_squared_error(Y, Y_)
-            # train_op = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss)
-            # sess.run(train_op)
-            # train_step.run(feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
-        #     sess.run(init_op)
-        #     coord = tf.train.Coordinator()
-        #     threads = tf.train.start_queue_runners(coord=coord)
-        #     out = sess.run(tar)
-        #     print(type(out[0]))
-        #     coord.request_stop()
-        #     coord.join()
         return - epoch
 
     def train(self, dataLoader, epoch):
@@ -52,10 +41,10 @@ class Trainer:
         return self.process(dataLoader, epoch, 'test')
 
     def LRDecay(self, epoch):
-        pass
+        pass # decay - build in tf.
 
     def LRDecayStep(self):
-        pass
+        pass  # decay build in tf.
 
 
 def updateLog(epoch, i, length ,time, datatime, err, Acc):
