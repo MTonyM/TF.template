@@ -22,20 +22,6 @@ except ImportError:
 # Data loading
 print('=> Setting up data loader')
 trainLoader, valLoader = DataLoader.create(opt)
-# trainLoader contains loader and total number...
-# debug 0000000000
-# tar = valLoader[0].get(['target/image'])
-# with tf.Session() as sess:
-#     init_op = tf.global_variables_initializer()
-#     sess.run(init_op)
-#     coord = tf.train.Coordinator()
-#     threads = tf.train.start_queue_runners(coord=coord)
-#     out = sess.run(tar)
-#     print(type(out[0]))
-#     coord.request_stop()
-#     coord.join()
-# debug 0000000000
-# Load previous checkpoint, if it exists
 print('=> Checking checkpoints')
 checkpoint = checkpoints.load(opt)
 
@@ -51,16 +37,13 @@ if opt.testOnly:
 
 bestLoss = math.inf
 startEpoch = max([1, opt.epochNum])
+
 if checkpoint != None:
     startEpoch = checkpoint['epoch'] + 1
     bestLoss = checkpoint['loss']
     print('Previous loss: \033[1;36m%1.4f\033[0m' % bestLoss)
 
-trainer.LRDecay(startEpoch)
-
 for epoch in range(startEpoch, opt.nEpochs + 1):
-    trainer.LRDecayStep()
-
     trainLoss = trainer.train(trainLoader, epoch)
     testLoss = trainer.test(valLoader, epoch)
 

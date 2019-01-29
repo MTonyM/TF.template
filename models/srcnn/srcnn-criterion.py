@@ -1,4 +1,4 @@
-import torch.nn as nn
+import tensorflow as tf
 from skimage.measure import compare_psnr, compare_ssim
 
 
@@ -7,7 +7,8 @@ def initCriterion(criterion, model):
 
 
 def createCriterion(opt, model):
-    criterion = nn.MSELoss()
+    def criterion(outputs, labels):
+        return tf.reduce_mean(tf.losses.mean_squared_error(outputs, labels))
     return criterion
 
 
