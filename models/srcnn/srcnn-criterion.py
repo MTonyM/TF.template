@@ -8,7 +8,7 @@ def initCriterion(criterion, model):
 
 def createCriterion(opt, model):
     def criterion(outputs, labels):
-        return tf.reduce_mean(tf.losses.mean_squared_error(outputs, labels))
+        return tf.reduce_mean(tf.losses.mean_squared_error(outputs, labels)) * 100
     return criterion
 
 
