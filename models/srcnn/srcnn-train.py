@@ -1,9 +1,11 @@
-import os
-import tensorflow as tf
 import math
+import os
+import time
+
+import tensorflow as tf
+
 from util.misc import RunningAverage
 from util.progbar import progbar
-import time
 
 
 class Trainer:

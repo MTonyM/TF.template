@@ -1,8 +1,9 @@
-import sys
-import opts
-import math
 import importlib
-import tensorflow as tf
+import math
+import sys
+
+import opts
+
 print("=> initializing. parsing arguments.")
 opt = opts.parse()
 

@@ -1,10 +1,10 @@
 import os
-import io
 import pickle
-import tensorflow as tf
+
 from tqdm import tqdm
-from PIL import Image
+
 from util.dataset import *
+
 
 def exec(opt, cacheFilePath):
     assert os.path.exists(opt.data), 'Data directory not found: ' + opt.data

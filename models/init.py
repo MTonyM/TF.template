@@ -1,8 +1,8 @@
+import importlib
 import os
+
 import torch
 import torch.nn as nn
-import torch.backends.cudnn as cudnn
-import importlib
 
 
 def setup(opt, checkpoint):

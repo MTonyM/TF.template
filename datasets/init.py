@@ -1,7 +1,7 @@
-import os
 import importlib
-import tensorflow as tf
+import os
 import pickle
+
 
 def isvalid(opt, cachePath):
     info = pickle.load(open(cachePath, 'rb'))

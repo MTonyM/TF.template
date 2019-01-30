@@ -1,8 +1,11 @@
 import argparse
 import os
 import random
-from util.utils import is_gpu_available
+
 import tensorflow as tf
+
+from util.utils import is_gpu_available
+
 
 def parse():
     parser = argparse.ArgumentParser()
