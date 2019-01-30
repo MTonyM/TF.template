@@ -35,6 +35,7 @@ def load(opt):
         loaded = {'epoch': epoch, 'modelFile': modelFile, 'criterionFile': criterionFile, 'optimFile': optimFile}
         return loaded
 
+
 def save(epoch, model, criterion, metrics, optimizer, bestModel, loss, opt):
     if isinstance(model, nn.DataParallel):
         model = model.get(0)
@@ -49,10 +50,12 @@ def save(epoch, model, criterion, metrics, optimizer, bestModel, loss, opt):
         torch.save(model.state_dict(), os.path.join(opt.resume, modelFile))
         torch.save([criterion, metrics], os.path.join(opt.resume, criterionFile))
         torch.save(optimizer.state_dict(), os.path.join(opt.resume, optimFile))
-        info = {'epoch':epoch, 'modelFile':modelFile, 'criterionFile':criterionFile, 'optimFile':optimFile, 'loss':loss}
+        info = {'epoch': epoch, 'modelFile': modelFile, 'criterionFile': criterionFile, 'optimFile': optimFile,
+                'loss': loss}
         torch.save(info, os.path.join(opt.resume, 'latest.ckpt'))
 
     if bestModel:
-        info = {'epoch':epoch, 'modelFile':modelFile, 'criterionFile':criterionFile, 'optimFile':optimFile, 'loss':loss}
+        info = {'epoch': epoch, 'modelFile': modelFile, 'criterionFile': criterionFile, 'optimFile': optimFile,
+                'loss': loss}
         torch.save(info, os.path.join(opt.resume, 'best.ckpt'))
         torch.save(model.state_dict(), os.path.join(opt.resume, 'model_best.pth.tar'))

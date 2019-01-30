@@ -70,7 +70,7 @@ def parse():
     tf.set_random_seed(opt.manualSeed)
 
     if opt.debug:
-        opt.nEpochs = 1
+        opt.nEpochs = 2
         opt.nThreads = 1
         opt.visTrain = min(opt.visTrain, 10)
         opt.visTest = min(opt.visTest, 10)

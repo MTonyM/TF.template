@@ -39,7 +39,7 @@ if opt.testOnly:
 bestLoss = math.inf
 startEpoch = max([1, opt.epochNum])
 
-if checkpoint != None:
+if checkpoint is not None:
     startEpoch = checkpoint['epoch'] + 1
     bestLoss = checkpoint['loss']
     print('Previous loss: \033[1;36m%1.4f\033[0m' % bestLoss)

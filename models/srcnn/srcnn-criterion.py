@@ -9,6 +9,7 @@ def initCriterion(criterion, model):
 def createCriterion(opt, model):
     def criterion(outputs, labels):
         return tf.reduce_mean(tf.losses.mean_squared_error(outputs, labels)) * 100
+
     return criterion
 
 
@@ -27,10 +28,12 @@ def ssim(outputs, labels):
         ssim += compare_ssim(labels[i], outputs[i], win_size=3, multichannel=True)
     return ssim / N
 
+
 METRICS = {
     'PSNR': accuracy,
     'SSIM': ssim,
 }
+
 
 def createMetrics(opt, model):
     print("=> create metrics: ", end="")

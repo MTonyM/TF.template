@@ -41,8 +41,8 @@ def processReshape(image, resize):
     width, height = image.size
     if resize is not None:
         if width > height:
-             width = int(width * resize / height)
-             height = resize
+            width = int(width * resize / height)
+            height = resize
         else:
             width = resize
             height = int(height * resize / width)

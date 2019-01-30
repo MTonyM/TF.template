@@ -21,6 +21,9 @@ class Trainer:
         self.logger = {'train': open(os.path.join(opt.resume, 'train.log'), 'a+'),
                        'val': open(os.path.join(opt.resume, 'test.log'), 'a+')}
 
+        self.sess = tf.Session()
+        self.train_op = tf.train.AdamOptimizer(self.lr)
+
     def process(self, dataLoader, epoch, split):
         train = split == 'train'
         num_iters = int(dataLoader[1] // self.batchSize)
@@ -29,8 +32,7 @@ class Trainer:
         # /-------------------------^-------------------------\
         out = self.model(batch_X)
         loss = self.criterion(out, batch_Y)
-        train_op = tf.train.AdamOptimizer(self.lr).minimize(loss) if train else None
-
+        train_op = self.train_op.minimize(loss)
         # init loss and accuracy
         avgLoss = RunningAverage()
         avgAcces = {}
@@ -39,46 +41,44 @@ class Trainer:
         bar = progbar(num_iters, width=self.opt.barwidth)
         print("\n=> [{}]ing epoch : {}".format(split, epoch))
         # train
-        with tf.Session().as_default() as sess:
-            init_op = tf.global_variables_initializer()
-            sess.run(init_op)
-            coord = tf.train.Coordinator()
+        if epoch == 1 and train:
+            self.sess.run(tf.global_variables_initializer())
 
-            # begin one epoch
-            for i in range(num_iters):
-                if self.opt.debug and i > 2:  # check debug.
-                    break
+        coord = tf.train.Coordinator()
+        # begin one epoch
+        for i in range(num_iters):
+            if self.opt.debug and i > 2:  # check debug.
+                break
 
-                startTime = time.time()
-                X_numpy, Y_numpy = sess.run(dataLoader[0].get_next())
-                dataTime = time.time() - startTime
+            startTime = time.time()
+            X_numpy, Y_numpy = self.sess.run(dataLoader[0].get_next())
+            dataTime = time.time() - startTime
 
-                logAcc = []
-                if train:
-                    lr, _, cost, out_eval = sess.run([self.lr ,train_op, loss, out],
-                                                     feed_dict={batch_X: X_numpy,
-                                                     batch_Y: Y_numpy,
-                                                     self.ep: num_iters * (epoch - 1) + i*self.opt.batchSize})
-                    logAcc.append(('LR', lr))
-                else:
-                    cost, out_eval = sess.run([loss, out],
-                                              feed_dict={batch_X: X_numpy,
-                                                         batch_Y: Y_numpy})
+            logAcc = []
+            if train:
+                it = num_iters * (epoch - 1) + i * self.opt.batchSize
+                lr, _, cost, out_eval = self.sess.run([self.lr, train_op, loss, out],
+                                                      feed_dict={batch_X: X_numpy, batch_Y: Y_numpy, self.ep: it})
+                logAcc.append(('LR', lr))
+            else:
+                cost, out_eval = self.sess.run([loss, out],
+                                               feed_dict={batch_X: X_numpy,
+                                                          batch_Y: Y_numpy})
 
-                runningTime = time.time() - startTime
+            runningTime = time.time() - startTime
 
-                # log record.
-                avgLoss.update(cost)
-                for metric in self.metrics:
-                    avgAcces[metric].update(self.metrics[metric](Y_numpy, out_eval))
-                    logAcc.append((metric, float(avgAcces[metric]())))
+            # log record.
+            avgLoss.update(cost)
+            for metric in self.metrics:
+                avgAcces[metric].update(self.metrics[metric](Y_numpy, out_eval))
+                logAcc.append((metric, float(avgAcces[metric]())))
 
-                bar.update(i, [('Time', runningTime), ('loss', float(cost)), *logAcc])
-                log = updateLog(epoch, i, num_iters, runningTime, dataTime, cost, avgAcces)
-                self.logger[split].write(log)
+            bar.update(i, [('Time', runningTime), ('loss', float(cost)), *logAcc])
+            log = updateLog(epoch, i, num_iters, runningTime, dataTime, cost, avgAcces)
+            self.logger[split].write(log)
 
-            coord.request_stop()
-            coord.join()
+        coord.request_stop()
+        coord.join()
         return avgLoss()
 
     def train(self, dataLoader, epoch):
