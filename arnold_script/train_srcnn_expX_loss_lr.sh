@@ -21,3 +21,5 @@ exec $@
 #                                --www /mnt/cephfs/lab/tony/www/  \
 #                                --epochNum 0 --batchSize 64      \
 # & mv ./models/* /mnt/cephfs/lab/tony/models/
+
+
