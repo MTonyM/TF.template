@@ -42,7 +42,7 @@ if checkpoint != None:
     startEpoch = checkpoint['epoch'] + 1
     bestLoss = checkpoint['loss']
     print('Previous loss: \033[1;36m%1.4f\033[0m' % bestLoss)
-
+print('====================== * start epochs * =====================', end='')
 for epoch in range(startEpoch, opt.nEpochs + 1):
     trainLoss = trainer.train(trainLoader, epoch)
     testLoss = trainer.test(valLoader, epoch)
@@ -51,8 +51,8 @@ for epoch in range(startEpoch, opt.nEpochs + 1):
     if testLoss < bestLoss:
         bestModel = True
         bestLoss = testLoss
-        print(' * Best model: \033[1;36m%1.4f\033[0m * ' % testLoss)
+        print('\n * Best model: \033[1;36m%1.4f\033[0m * ' % testLoss)
 
     # checkpoints.save(epoch, trainer.model, criterion, metric, trainer.optimizer, bestModel, testLoss ,opt)
 
-print(' * Finished Err: \033[1;36m%1.4f\033[0m * ' % bestLoss)
+print('=================== * Finished Err: \033[1;36m%1.4f\033[0m * ================' % bestLoss)

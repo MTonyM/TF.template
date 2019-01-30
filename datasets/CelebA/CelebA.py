@@ -3,9 +3,9 @@ import tensorflow as tf
 
 class CelebA:
     def __init__(self, imageInfo, opt, split):
-        self.recordPath = imageInfo[split]
+        self.recordPath = imageInfo[split if split == 'train' else 'val']
         self.opt = opt
-        self.split = split
+        self.split = split if split == 'train' else 'val'
         self.dir = imageInfo['basedir']
         self.transform = lambda x: x
         self.total = imageInfo['n_' + split]
