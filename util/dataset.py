@@ -12,7 +12,7 @@ def bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 
-def processImg(path, resize=None):
+def process_img(path, resize=None):
     with tf.gfile.GFile(path, 'rb') as fid:
         encode_jpg = fid.read()
     encode_jpg_io = io.BytesIO(encode_jpg)
@@ -28,7 +28,7 @@ def processImg(path, resize=None):
         image = image.convert("RGB")
         process_flag = True
     # resize ??
-    image = processReshape(image, resize)
+    image = process_reshape(image, resize)
     if process_flag or resize is not None:
         bytes_io = io.BytesIO()
         image.save(bytes_io, format='JPEG')
@@ -37,7 +37,7 @@ def processImg(path, resize=None):
     return encode_jpg, width, height
 
 
-def processReshape(image, resize):
+def process_reshape(image, resize):
     width, height = image.size
     if resize is not None:
         if width > height:

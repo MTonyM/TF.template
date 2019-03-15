@@ -27,8 +27,8 @@ def exec(opt, cacheFilePath):
 
 
 def createTFExample(patha, pathb, resize=None):
-    img_in, inh, inw = processImg(patha, resize)
-    img_tar, tarh, tarw = processImg(pathb, resize)
+    img_in, inh, inw = process_img(patha, resize)
+    img_tar, tarh, tarw = process_img(pathb, resize)
     tf_example = tf.train.Example(
         features=tf.train.Features(
             feature={
